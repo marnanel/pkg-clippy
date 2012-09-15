@@ -33,6 +33,8 @@ pkg_config_SOURCES= \
 	pkg.c \
 	parse.h \
 	parse.c \
+	aptfile.h \
+	aptfile.c \
 	main.c
 
 # Various data files
