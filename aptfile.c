@@ -31,15 +31,36 @@
 gchar*
 aptfile_owner_package (gchar *package_name)
 {
-	gchar *pc_file_name;
+	gchar *command_line;
+	gchar *standard_output = NULL;
+	gchar *standard_error = NULL;
+	gint exit_status;
+	gboolean spawned_ok;
+	GError *err = NULL;
 
 	printf ("We are looking for: %s\n", package_name);
 
-	pc_file_name = g_strdup_printf ("%s.pc", package_name);
+	command_line = g_strdup_printf ("apt-file search -l %s.pc", package_name);
 
-	printf ("The .pc file is called: %s\n", pc_file_name);
+	printf ("The command line is: %s\n", command_line);
 
-	g_free (pc_file_name);
+	g_clear_error (&err);
+
+	spawned_ok =
+		g_spawn_command_line_sync (command_line,
+					&standard_output,
+					&standard_error,
+					&exit_status,
+					&err);
+
+	printf ("Spawning status is: %d\n", spawned_ok);
+	printf ("Exit status is: %d\n", exit_status);
+	printf ("Standard output: [%s]\n", standard_output);
+	printf ("Standard error: [%s]\n", standard_error);
+
+	g_free (command_line);
+	g_free (standard_output);
+	g_free (standard_error);
 
 	return NULL;
 }
