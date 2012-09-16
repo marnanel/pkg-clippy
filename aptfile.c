@@ -25,3 +25,9 @@
 
 #include "aptfile.h"
 
+gchar*
+aptfile_owner_package (gchar *package_name)
+{
+	return NULL;
+}
+

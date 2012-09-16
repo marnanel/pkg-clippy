@@ -22,6 +22,8 @@
 
 #include "pkg.h"
 
+gchar* aptfile_owner_package (gchar *package_name);
+
 /* ... */
 
 #endif
