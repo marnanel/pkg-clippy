@@ -28,6 +28,55 @@
 /* TEMP: */
 #include <stdio.h>
 
+/*
+If "packages" contains exactly one \n and it's at the end of the string,
+then this function strips that \n and returns TRUE.
+Otherwise it returns FALSE and "packages" is unchanged.
+*/
+static gboolean
+aptfile_check_for_single_package (gchar *packages)
+{
+	/*
+
+	   Three possibilities hee:
+	   1) standard_output is "": there are no such packages
+	   2) standard output contains exactly one \n, at the end: there is one package
+	   3) standard_output contains other \n's; there are multiple packages..
+
+	 */
+
+	gchar *newline_pos;
+	glong packages_length;
+
+	if (*packages==0)
+	{
+		/* There appear to be no such packages. */
+		printf("There appear to be no such packages.\n");
+		return FALSE;
+	}
+
+	/* FIXME: is the output really utf-8? */
+	/* FIXME: can we really pass -1 as the gssize here? */
+
+	newline_pos = g_utf8_strchr (packages, -1, '\n');
+	packages_length = g_utf8_strlen (packages, -1);
+
+	printf ("Newline position is %d from the start.\n", newline_pos - packages);
+	printf ("And string length is %ld.\n", packages_length);
+
+	if (packages_length == (newline_pos-packages)+1)
+	{
+		printf ("A single line! Looks like we have what we're looking for.\n");
+		*newline_pos = 0; /* knock out the trailing newline */
+		return TRUE;
+	}
+	else
+	{
+		printf ("Multiple lines; give up.\n");
+		return FALSE;
+	}
+
+}
 gchar*
 aptfile_owner_package (gchar *package_name)
 {
@@ -37,6 +86,7 @@ aptfile_owner_package (gchar *package_name)
 	gint exit_status;
 	gboolean spawned_ok;
 	GError *err = NULL;
+	gchar *result = NULL;
 
 	printf ("We are looking for: %s\n", package_name);
 
@@ -58,10 +108,32 @@ aptfile_owner_package (gchar *package_name)
 	printf ("Standard output: [%s]\n", standard_output);
 	printf ("Standard error: [%s]\n", standard_error);
 
-	g_free (command_line);
-	g_free (standard_output);
-	g_free (standard_error);
+	if (spawned_ok)
+	{
+		gboolean single;
 
-	return NULL;
+		single = aptfile_check_for_single_package (standard_output);
+
+		printf ("Result of check for single package: %d [%s]\n", single, standard_output);
+
+		if (single)
+		{
+			result = standard_output;
+		}
+	}
+	else
+	{
+		/* result will be NULL */
+		/* FIXME: clear the error too */
+	}
+
+	g_free (command_line);
+	g_free (standard_error);
+	if (result != standard_output)
+	{
+		g_free (standard_output);
+	}
+
+	return result;
 }
 
