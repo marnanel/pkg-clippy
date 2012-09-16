@@ -25,9 +25,22 @@
 
 #include "aptfile.h"
 
+/* TEMP: */
+#include <stdio.h>
+
 gchar*
 aptfile_owner_package (gchar *package_name)
 {
+	gchar *pc_file_name;
+
+	printf ("We are looking for: %s\n", package_name);
+
+	pc_file_name = g_strdup_printf ("%s.pc", package_name);
+
+	printf ("The .pc file is called: %s\n", pc_file_name);
+
+	g_free (pc_file_name);
+
 	return NULL;
 }
 
