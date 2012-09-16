@@ -137,7 +137,7 @@ aptfile_owner_package (gchar *package_name)
 	return result;
 }
 
-void
+gboolean
 aptfile_attempt_installation (gchar *package)
 {
 	gchar *command_line;
@@ -153,6 +153,8 @@ aptfile_attempt_installation (gchar *package)
 	printf ("Command-line is: %s.\n", command_line);
 
 	g_free (command_line);
+
+	return TRUE;
 }
 
 

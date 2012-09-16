@@ -24,7 +24,7 @@
 
 gchar* aptfile_owner_package (gchar *package_name);
 
-void aptfile_attempt_installation (gchar *package);
+gboolean aptfile_attempt_installation (gchar *package);
 
 #endif
 
