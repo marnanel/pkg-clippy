@@ -137,3 +137,10 @@ aptfile_owner_package (gchar *package_name)
 	return result;
 }
 
+void
+aptfile_attempt_installation (gchar *package)
+{
+	/* ... */
+}
+
+
