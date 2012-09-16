@@ -141,6 +141,9 @@ gboolean
 aptfile_attempt_installation (gchar *package)
 {
 	gchar *command_line;
+	gboolean result;
+	GError *err = NULL;
+	gint exit_status;
 
 	printf ("Attempting installation of %s.\n", package);
 
@@ -152,9 +155,28 @@ aptfile_attempt_installation (gchar *package)
 
 	printf ("Command-line is: %s.\n", command_line);
 
-	g_free (command_line);
+	g_clear_error (&err);
 
-	return TRUE;
+	/*
+	Is there a way NOT to capture stdout etc?
+	Maybe passing NULL as things.
+	Need to check API etc.
+	-- Not exactly clear from API! Experiment.
+	NULL/NULL works as intended; FIXME: add comment to complain.
+	*/
+	result =
+		g_spawn_command_line_sync (command_line,
+					NULL, /* stderr */
+					NULL, /* stderr */
+					&exit_status,
+					&err);
+
+	g_free (command_line);
+	/* FIXME And clear the error if appropriate */
+
+	printf ("Exit status was %d; result was %d.", exit_status, result);
+
+	return result;
 }
 
 
