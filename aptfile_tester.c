@@ -26,6 +26,8 @@ main(int argc, char **argv)
 
 	printf ("Result is: %s\n", result);
 
+	aptfile_attempt_installation (argv[1]);
+
 	return 0;
 }
 

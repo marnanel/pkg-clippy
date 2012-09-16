@@ -140,7 +140,19 @@ aptfile_owner_package (gchar *package_name)
 void
 aptfile_attempt_installation (gchar *package)
 {
-	/* ... */
+	gchar *command_line;
+
+	printf ("Attempting installation of %s.\n", package);
+
+	/*
+	I was going to miss off the sudo here, but nobody
+	should be running ./configure as root!
+	*/
+	command_line = g_strdup_printf ("sudo apt-get install %s", package);
+
+	printf ("Command-line is: %s.\n", command_line);
+
+	g_free (command_line);
 }
 
 
