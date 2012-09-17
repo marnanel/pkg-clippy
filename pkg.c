@@ -24,6 +24,7 @@
 
 #include "pkg.h"
 #include "parse.h"
+#include "aptfile.h"
 
 #ifdef HAVE_MALLOC_H
 # include <malloc.h>
