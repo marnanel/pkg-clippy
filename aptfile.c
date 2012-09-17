@@ -140,10 +140,10 @@ aptfile_owner_package (gchar *package_name)
 gboolean
 aptfile_attempt_installation (gchar *package)
 {
-	gchar *command_line;
 	gboolean result;
 	GError *err = NULL;
 	gint exit_status;
+	gchar* argv[4];
 
 	printf ("Attempting installation of %s.\n", package);
 
@@ -151,9 +151,10 @@ aptfile_attempt_installation (gchar *package)
 	I was going to miss off the sudo here, but nobody
 	should be running ./configure as root!
 	*/
-	command_line = g_strdup_printf ("sudo apt-get install %s", package);
-
-	printf ("Command-line is: %s.\n", command_line);
+	argv[0] = "sudo";
+	argv[1] = "apt-get";
+	argv[2] = "install";
+	argv[3] = package;
 
 	g_clear_error (&err);
 
@@ -164,17 +165,25 @@ aptfile_attempt_installation (gchar *package)
 	-- Not exactly clear from API! Experiment.
 	NULL/NULL works as intended; FIXME: add comment to complain.
 	*/
-	result =
-		g_spawn_command_line_sync (command_line,
-					NULL, /* stderr */
-					NULL, /* stderr */
-					&exit_status,
-					&err);
 
-	g_free (command_line);
+	result =
+		g_spawn_sync ("/",
+			argv,
+			NULL,
+			G_SPAWN_SEARCH_PATH |
+			G_SPAWN_CHILD_INHERITS_STDIN,
+			NULL, NULL, NULL, NULL,
+			&exit_status,
+			&err);
+
 	/* FIXME And clear the error if appropriate */
 
-	printf ("Exit status was %d; result was %d.", exit_status, result);
+	printf ("Exit status was %d; result was %d.\n", exit_status, result);
+
+	/*
+	...though TBH it doesn't matter whether it was successful;
+	either way we're going to retry the previous operation.
+	*/
 
 	return result;
 }
