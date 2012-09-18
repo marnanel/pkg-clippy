@@ -305,6 +305,19 @@ internal_get_package (const char *name, gboolean warn)
   
   if (location == NULL)
     {
+
+      /* It's not installed; does apt-file know about it? */
+      /* FIXME: names ending "-uninstalled" don't need to be checked */
+
+      const gchar *owner = aptfile_owner_package (name);
+
+      verbose_error("We think the owning package is %s\n", owner);
+
+      /*
+	after we've installed it, how should we force a rerun
+	without risking getting into an infinite loop?
+      */
+
       if (warn)
         verbose_error ("Package %s was not found in the pkg-config search path.\n"
                        "Perhaps you should add the directory containing `%s.pc'\n"
