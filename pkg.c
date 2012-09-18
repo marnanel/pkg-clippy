@@ -261,7 +261,7 @@ package_init ()
 }
 
 static Package *
-internal_get_package (const char *name, gboolean warn)
+internal_get_package (const char *name, gboolean warn, gboolean try_install)
 {
   Package *pkg = NULL;
   const char *location;
@@ -289,7 +289,7 @@ internal_get_package (const char *name, gboolean warn)
 
           un = g_strconcat (name, "-uninstalled", NULL);
 
-          pkg = internal_get_package (un, FALSE);
+          pkg = internal_get_package (un, FALSE, FALSE);
 
           g_free (un);
           
@@ -306,17 +306,26 @@ internal_get_package (const char *name, gboolean warn)
   if (location == NULL)
     {
 
-      /* It's not installed; does apt-file know about it? */
-      /* FIXME: names ending "-uninstalled" don't need to be checked */
+      if (try_install)
+        {
 
-      const gchar *owner = aptfile_owner_package (name);
+          /* It's not installed; does apt-file know about it? */
+          const gchar *owner = aptfile_owner_package (name);
 
-      verbose_error("We think the owning package is %s\n", owner);
+          if (owner != NULL)
+            {
+              verbose_error("We think the owning package is %s\n", owner);
+              verbose_error("Attempting installation.\n");
 
-      /*
-	after we've installed it, how should we force a rerun
-	without risking getting into an infinite loop?
-      */
+              aptfile_attempt_installation (owner);
+
+              /* and now retry the check */
+		/* FIXME this fails because the hash is out of date; repopulate it */
+		/* FIXME this will need a new static function to kill the packages list */
+
+              return internal_get_package (name, warn, FALSE);
+            }
+        }
 
       if (warn)
         verbose_error ("Package %s was not found in the pkg-config search path.\n"
@@ -376,13 +385,13 @@ internal_get_package (const char *name, gboolean warn)
 Package *
 get_package (const char *name)
 {
-  return internal_get_package (name, TRUE);
+  return internal_get_package (name, TRUE, TRUE);
 }
 
 Package *
 get_package_quiet (const char *name)
 {
-  return internal_get_package (name, FALSE);
+  return internal_get_package (name, FALSE, TRUE);
 }
 
 static GSList*
