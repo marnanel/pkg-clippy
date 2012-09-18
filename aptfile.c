@@ -139,7 +139,7 @@ aptfile_owner_package (const gchar *package_name)
 }
 
 gboolean
-aptfile_attempt_installation (gchar *package)
+aptfile_attempt_installation (const gchar *package)
 {
 	gboolean result;
 	GError *err = NULL;
@@ -155,7 +155,7 @@ aptfile_attempt_installation (gchar *package)
 	argv[0] = "sudo";
 	argv[1] = "apt-get";
 	argv[2] = "install";
-	argv[3] = package;
+	argv[3] = g_strdup (package);
 
 	g_clear_error (&err);
 
@@ -176,6 +176,8 @@ aptfile_attempt_installation (gchar *package)
 			NULL, NULL, NULL, NULL,
 			&exit_status,
 			&err);
+
+        g_free (argv[3]);
 
 	/* FIXME And clear the error if appropriate */
 

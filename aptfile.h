@@ -24,7 +24,7 @@
 
 const gchar* aptfile_owner_package (const gchar *package_name);
 
-gboolean aptfile_attempt_installation (gchar *package);
+gboolean aptfile_attempt_installation (const gchar *package);
 
 #endif
 
