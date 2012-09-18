@@ -22,7 +22,7 @@
 
 #include "pkg.h"
 
-gchar* aptfile_owner_package (gchar *package_name);
+const gchar* aptfile_owner_package (const gchar *package_name);
 
 gboolean aptfile_attempt_installation (gchar *package);
 

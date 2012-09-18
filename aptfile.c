@@ -77,8 +77,9 @@ aptfile_check_for_single_package (gchar *packages)
 	}
 
 }
-gchar*
-aptfile_owner_package (gchar *package_name)
+
+const gchar*
+aptfile_owner_package (const gchar *package_name)
 {
 	gchar *command_line;
 	gchar *standard_output = NULL;
