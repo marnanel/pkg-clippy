@@ -241,6 +241,26 @@ add_virtual_pkgconfig_package (void)
   return pkg;
 }
 
+static void
+hashes_construct ()
+{
+  packages = g_hash_table_new (g_str_hash, g_str_equal);
+  locations = g_hash_table_new (g_str_hash, g_str_equal);
+  path_positions = g_hash_table_new (g_str_hash, g_str_equal);
+      
+  add_virtual_pkgconfig_package ();
+
+  g_slist_foreach (search_dirs, (GFunc)scan_dir, NULL);
+}
+
+static void
+hashes_destruct ()
+{
+  g_hash_table_unref (packages);
+  g_hash_table_unref (locations);
+  g_hash_table_unref (path_positions);
+}
+
 void
 package_init ()
 {
@@ -249,14 +269,8 @@ package_init ()
   if (!initted)
     {
       initted = TRUE;
-      
-      packages = g_hash_table_new (g_str_hash, g_str_equal);
-      locations = g_hash_table_new (g_str_hash, g_str_equal);
-      path_positions = g_hash_table_new (g_str_hash, g_str_equal);
-      
-      add_virtual_pkgconfig_package ();
 
-      g_slist_foreach (search_dirs, (GFunc)scan_dir, NULL);
+      hashes_construct ();
     }
 }
 
@@ -319,9 +333,12 @@ internal_get_package (const char *name, gboolean warn, gboolean try_install)
 
               aptfile_attempt_installation (owner);
 
+              /* which means we'll need to repopulate the cache */
+              
+              hashes_destruct ();
+	      hashes_construct ();
+
               /* and now retry the check */
-		/* FIXME this fails because the hash is out of date; repopulate it */
-		/* FIXME this will need a new static function to kill the packages list */
 
               return internal_get_package (name, warn, FALSE);
             }
